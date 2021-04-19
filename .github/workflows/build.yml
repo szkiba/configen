@@ -38,7 +38,7 @@ jobs:
       - name: Lint Go Code
         uses: golangci/golangci-lint-action@v2
         with:
-          version: v1.29
+          version: v1.39.0
 
   test:
     name: Test
@@ -47,19 +47,13 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.15
+          go-version: 1.16
 
       - name: Check out code
         uses: actions/checkout@v2
 
       - name: Run Unit tests.
-        run: go test ./... -coverprofile=coverage.out
-
-      - name: Upload Coverage report to CodeCov
-        uses: codecov/codecov-action@v1
-        with:
-          fail_ci_if_error: false
-          files: coverage.out
+        run: go test ./...
 
   build:
     name: Build
@@ -69,7 +63,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.15
+          go-version: 1.16
 
       - name: Check out code
         uses: actions/checkout@v2

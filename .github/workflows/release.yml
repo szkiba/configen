@@ -38,7 +38,7 @@ jobs:
       - name: Lint Go Code
         uses: golangci/golangci-lint-action@v2
         with:
-          version: v1.29
+          version: v1.39.0
 
   test:
     name: Test
@@ -47,13 +47,13 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.15
+          go-version: 1.16
 
       - name: Check out code
         uses: actions/checkout@v2
 
       - name: Run Unit tests.
-        run: go test ./... -coverprofile=coverage.txt
+        run: go test ./...
 
   release:
     name: Release
@@ -63,7 +63,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.15
+          go-version: 1.16
 
       - name: Check out code
         uses: actions/checkout@v2
@@ -83,6 +83,3 @@ jobs:
           args: release --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Generate Go Report Card
-        uses: creekorful/goreportcard-action@v1.0
