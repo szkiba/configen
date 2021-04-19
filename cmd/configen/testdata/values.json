@@ -1,0 +1,17 @@
+{
+  "$schema": "./values.schema.json",
+  "domain": "example.com",
+  "tenant": "playground",
+  "aliases": ["play-field", "sandbox"],
+  "services": [
+    {
+      "name": "search",
+      "template": "https://places.foo.test"
+    },
+    {
+      "name": "register",
+      "scope": "bar",
+      "template": "https://users.bar.test"
+    }
+  ]
+}

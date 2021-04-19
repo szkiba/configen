@@ -1,0 +1,5 @@
+{{- /* Short notes about configuration files */ -}}
+Sample configuration files
+
+This directory contains configuration files for `{{ .Values.tenant }}` tenant
+at `{{ .Env }}` environment.

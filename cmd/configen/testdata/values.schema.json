@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type": "object",
+  "required": ["domain", "tenant", "aliases", "services"],
+  "properties": {
+    "domain": {
+      "type": "string"
+    },
+    "tenant": {
+      "type": "string"
+    },
+    "aliases": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "services": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "template"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "template": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
