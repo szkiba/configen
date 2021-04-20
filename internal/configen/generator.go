@@ -24,7 +24,6 @@ package configen
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -167,24 +166,29 @@ func (g *generator) initFuncMap(t *template.Template, funcs template.FuncMap) {
 	}
 }
 
-func (g *generator) executeTemplate(basedir string, path string) ([]byte, error) {
+func (g *generator) executeTemplate(basedir string, path string) ([]byte, *console, error) {
 	src := filepath.Join(basedir, path)
 
 	t, err := g.root.Clone()
 	if err != nil {
-		return nil, wrap(err, src)
+		return nil, nil, wrap(err, src)
 	}
+
+	ctx := g.ctx
+	con := newConsole(g.quiet, t, g.ctx)
+
+	ctx["Output"] = filepath.Join(g.output, path)
 
 	t, err = t.ParseFiles(src)
 	if err != nil {
-		return nil, wrap(err, src)
+		return nil, nil, wrap(err, src)
 	}
 
 	var buff bytes.Buffer
 
-	err = t.ExecuteTemplate(&buff, filepath.Base(src), g.ctx)
+	err = t.ExecuteTemplate(&buff, filepath.Base(src), ctx)
 	if err != nil {
-		return nil, wrap(err, src)
+		return nil, nil, wrap(err, src)
 	}
 
 	txt := buff.Bytes()
@@ -195,19 +199,19 @@ func (g *generator) executeTemplate(basedir string, path string) ([]byte, error)
 		dir := filepath.Dir(dump)
 
 		if err := mkdir(dir); err != nil {
-			return nil, wrap(err, dir)
+			return nil, nil, wrap(err, dir)
 		}
 
 		if err := ioutil.WriteFile(dump, txt, filePerm); err != nil {
-			return nil, wrap(err, dump)
+			return nil, nil, wrap(err, dump)
 		}
 	}
 
-	return txt, nil
+	return txt, con, nil
 }
 
 func (g *generator) generateFile(basedir string, path string) error {
-	txt, err := g.executeTemplate(basedir, path)
+	txt, console, err := g.executeTemplate(basedir, path)
 	if err != nil {
 		return err
 	}
@@ -235,8 +239,13 @@ func (g *generator) generateFile(basedir string, path string) error {
 		return wrap(err, errfile)
 	}
 
-	if err = g.validate(txt, format); err != nil {
+	parsed, err := g.validate(txt, format)
+	if err != nil {
 		return wrap(err, errfile)
+	}
+
+	if err := console.render(parsed); err != nil {
+		return err
 	}
 
 	if g.dry {
@@ -249,10 +258,6 @@ func (g *generator) generateFile(basedir string, path string) error {
 	err = ioutil.WriteFile(out, txt, filePerm)
 	if err != nil {
 		return err
-	}
-
-	if !g.quiet {
-		fmt.Fprintln(os.Stdout, out)
 	}
 
 	return nil
@@ -322,7 +327,7 @@ func (g *generator) newContext(env string, o *Options) (Context, error) {
 			return nil, wrap(err, f)
 		}
 
-		if err = g.validate(b, format); err != nil {
+		if _, err = g.validate(b, format); err != nil {
 			return nil, wrap(err, f)
 		}
 

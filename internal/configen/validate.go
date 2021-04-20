@@ -37,28 +37,28 @@ import (
 // ErrValidationError returned if JSON schema validation failed.
 var ErrValidationError = errors.New("validation error")
 
-func (g *generator) validate(b []byte, format string) error {
+func (g *generator) validate(b []byte, format string) (interface{}, error) {
 	fn, ok := parsers[format]
 	if !ok {
-		return nil
+		return nil, nil
 	}
 
 	v := Context{}
 
 	if err := fn(b, &v); err != nil {
-		return err
+		return nil, err
 	}
 
 	schema, ok := v.get(propSchema)
 	if !ok || g.loose {
-		return nil
+		return v, nil
 	}
 
 	loader := gojsonschema.NewGoLoader(v)
 
 	result, err := gojsonschema.Validate(g.schemaLoader(schema), loader)
 	if err != nil {
-		return wrap(err, schema)
+		return v, wrap(err, schema)
 	}
 
 	if !result.Valid() {
@@ -66,10 +66,10 @@ func (g *generator) validate(b []byte, format string) error {
 			fmt.Fprintf(os.Stderr, "%s\n", desc)
 		}
 
-		return ErrValidationError
+		return v, ErrValidationError
 	}
 
-	return err
+	return v, err
 }
 
 func (g *generator) schemaLoader(schema string) gojsonschema.JSONLoader {
