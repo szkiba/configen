@@ -26,6 +26,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"reflect"
 	"strings"
 	"text/template"
 
@@ -40,10 +41,15 @@ var functions = map[string]interface{}{
 	"fromYaml":      fromYaml,
 	"fromYamlArray": fromYamlArray,
 	"fromToml":      fromToml,
+	"equal":         reflect.DeepEqual,
+	"assert":        assertion,
 }
 
 // ErrMissingValue returned by 'required' template function when required value is missing.
 var ErrMissingValue = errors.New("missing value")
+
+// ErrAssertionFailed returned by 'assert' template function when provided arg evaluated as flase value.
+var ErrAssertionFailed = errors.New("assertion failed")
 
 func toYaml(v interface{}) string {
 	output, _ := yamlMarshal(v)
@@ -79,6 +85,27 @@ func fromToml(str string) map[string]interface{} {
 	toml.Unmarshal([]byte(str), &m) // nolint
 
 	return m
+}
+
+func assertion(msg string, v interface{}) (bool, error) {
+	val := reflect.ValueOf(v)
+
+	var valid bool
+
+	switch val.Kind() { // nolint:exhaustive
+	case reflect.Array, reflect.Slice, reflect.Map, reflect.String:
+		valid = val.Len() != 0
+	case reflect.Bool:
+		valid = val.Bool()
+	default:
+		valid = val.IsValid() && !val.IsZero() && !val.IsNil()
+	}
+
+	if valid {
+		return true, nil
+	}
+
+	return false, fmt.Errorf("%w: %s", ErrAssertionFailed, msg)
 }
 
 func newFuncMap(t *template.Template) template.FuncMap {
