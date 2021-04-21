@@ -80,7 +80,7 @@ func uritplValue(val interface{}) uritemplate.Value { // nolint: cyclop
 
 	ref := reflect.ValueOf(val)
 
-	switch ref.Kind() {
+	switch ref.Kind() { // nolint: exhaustive
 	case reflect.Map, reflect.Array, reflect.Slice, reflect.String:
 		if ref.Len() == 0 {
 			return uritemplate.KV()
