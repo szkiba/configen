@@ -24,77 +24,53 @@ package configen
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 	"text/template"
 )
 
-type console struct {
+type deferrer struct {
 	quiet    bool
 	context  Context
 	template *template.Template
 	deferred []string
 }
 
-func newConsole(quiet bool, t *template.Template, ctx Context) *console {
-	c := &console{
+func newDeferrer(quiet bool, t *template.Template, ctx Context) *deferrer {
+	d := &deferrer{
 		quiet:    quiet,
 		context:  ctx,
 		template: t,
 		deferred: []string{},
 	}
 
-	t.Funcs(c.funcMap())
-
-	return c
-}
-
-func (c *console) funcMap() template.FuncMap {
 	funcs := template.FuncMap{}
 
-	if c.quiet {
-		noop := func(a ...interface{}) (int, error) {
-			return 0, nil
-		}
-		funcs["out"] = noop
-		funcs["outln"] = noop
-		funcs["outf"] = noop
-	} else {
-		funcs["out"] = func(a ...interface{}) (int, error) {
-			return fmt.Fprint(os.Stdout, a...) // nolint
-		}
-		funcs["outln"] = func(a ...interface{}) (int, error) {
-			return fmt.Fprintln(os.Stdout, a...) // nolint
-		}
-		funcs["outf"] = func(format string, a ...interface{}) (int, error) {
-			return fmt.Fprintf(os.Stdout, format, a...) // nolint
-		}
-	}
-
 	funcs["defer"] = func(name string) string {
-		c.deferred = append([]string{name}, c.deferred...)
+		d.deferred = append([]string{name}, d.deferred...)
 
 		return name
 	}
 
-	return funcs
+	t.Funcs(funcs)
+
+	return d
 }
 
-func (c *console) render(document interface{}) error {
-	if len(c.deferred) == 0 {
+func (d *deferrer) render(document interface{}) error {
+	if len(d.deferred) == 0 {
 		return nil
 	}
 
-	c.context["Document"] = document
+	d.context["Document"] = document
 
-	for _, name := range c.deferred {
+	for _, name := range d.deferred {
 		var buff bytes.Buffer
 
-		if err := c.template.ExecuteTemplate(&buff, name, c.context); err != nil {
+		if err := d.template.ExecuteTemplate(&buff, name, d.context); err != nil {
 			return err
 		}
 
-		if !c.quiet {
+		if !d.quiet {
 			if _, err := os.Stdout.Write(buff.Bytes()); err != nil {
 				return err
 			}

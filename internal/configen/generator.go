@@ -24,6 +24,7 @@ package configen
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -164,9 +165,28 @@ func (g *generator) initFuncMap(t *template.Template, funcs template.FuncMap) {
 
 		return buff.String(), nil
 	}
+
+	if g.quiet {
+		noop := func(a ...interface{}) (int, error) {
+			return 0, nil
+		}
+		funcs["out"] = noop
+		funcs["outln"] = noop
+		funcs["outf"] = noop
+	} else {
+		funcs["out"] = func(a ...interface{}) (int, error) {
+			return fmt.Fprint(os.Stdout, a...) // nolint
+		}
+		funcs["outln"] = func(a ...interface{}) (int, error) {
+			return fmt.Fprintln(os.Stdout, a...) // nolint
+		}
+		funcs["outf"] = func(format string, a ...interface{}) (int, error) {
+			return fmt.Fprintf(os.Stdout, format, a...) // nolint
+		}
+	}
 }
 
-func (g *generator) executeTemplate(basedir string, path string) ([]byte, *console, error) {
+func (g *generator) executeTemplate(basedir string, path string) ([]byte, *deferrer, error) {
 	src := filepath.Join(basedir, path)
 
 	t, err := g.root.Clone()
@@ -175,9 +195,7 @@ func (g *generator) executeTemplate(basedir string, path string) ([]byte, *conso
 	}
 
 	ctx := g.ctx
-	con := newConsole(g.quiet, t, g.ctx)
-
-	ctx["Output"] = filepath.Join(g.output, path)
+	def := newDeferrer(g.quiet, t, g.ctx)
 
 	t, err = t.ParseFiles(src)
 	if err != nil {
@@ -207,7 +225,7 @@ func (g *generator) executeTemplate(basedir string, path string) ([]byte, *conso
 		}
 	}
 
-	return txt, con, nil
+	return txt, def, nil
 }
 
 func (g *generator) generateFile(basedir string, path string) error {
