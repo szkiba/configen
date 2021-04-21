@@ -191,7 +191,7 @@ func (o *options) applyTag(t string) {
 	o.Templates = append(o.Templates, t)
 }
 
-var defaultValues = []string{"values.yaml", "values.yml", "values.toml", "values.json"}
+var defaultValues = []string{"values.yaml", "values.yml", "values.toml", "values.json", "values.jsonc"}
 
 func findValues() string {
 	for _, name := range defaultValues {

@@ -31,6 +31,7 @@ import (
 	"github.com/imdario/mergo"
 	"github.com/pelletier/go-toml"
 	"gopkg.in/yaml.v3"
+	"muzzammil.xyz/jsonc"
 )
 
 // Context defines generic JSON/YAML/TOML values type.
@@ -45,17 +46,19 @@ type formatFunc func(interface{}) ([]byte, error)
 
 var (
 	parsers = map[string]parseFunc{
-		"yaml": yaml.Unmarshal,
-		"yml":  yaml.Unmarshal,
-		"json": json.Unmarshal,
-		"toml": toml.Unmarshal,
+		"yaml":  yaml.Unmarshal,
+		"yml":   yaml.Unmarshal,
+		"json":  jsonUnmarshal,
+		"jsonc": jsonUnmarshal,
+		"toml":  toml.Unmarshal,
 	}
 
 	formatters = map[string]formatFunc{
-		"yaml": yamlMarshal,
-		"yml":  yamlMarshal,
-		"json": jsonMarshal,
-		"toml": toml.Marshal,
+		"yaml":  yamlMarshal,
+		"yml":   yamlMarshal,
+		"json":  jsonMarshal,
+		"jsonc": jsonMarshal,
+		"toml":  toml.Marshal,
 	}
 )
 
@@ -67,6 +70,10 @@ const (
 
 func jsonMarshal(data interface{}) ([]byte, error) {
 	return json.MarshalIndent(data, "", "  ")
+}
+
+func jsonUnmarshal(data []byte, v interface{}) error {
+	return jsonc.Unmarshal(data, v)
 }
 
 func yamlMarshal(data interface{}) ([]byte, error) {
