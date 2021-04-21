@@ -75,8 +75,6 @@ func preparePackage(dir string, file string) error {
 	return ioutil.WriteFile(out, b, filePerm)
 }
 
-type schemaLoaders map[string]gojsonschema.JSONLoader
-
 type generator struct {
 	output  string
 	loaders schemaLoaders

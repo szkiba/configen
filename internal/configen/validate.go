@@ -37,6 +37,8 @@ import (
 // ErrValidationError returned if JSON schema validation failed.
 var ErrValidationError = errors.New("validation error")
 
+type schemaLoaders map[string]gojsonschema.JSONLoader
+
 func (g *generator) validate(b []byte, format string) (interface{}, error) {
 	fn, ok := parsers[format]
 	if !ok {
@@ -56,7 +58,7 @@ func (g *generator) validate(b []byte, format string) (interface{}, error) {
 
 	loader := gojsonschema.NewGoLoader(v)
 
-	result, err := gojsonschema.Validate(g.schemaLoader(schema), loader)
+	result, err := validate(schema, g.loaders, loader)
 	if err != nil {
 		return v, wrap(err, schema)
 	}
@@ -72,8 +74,31 @@ func (g *generator) validate(b []byte, format string) (interface{}, error) {
 	return v, err
 }
 
-func (g *generator) schemaLoader(schema string) gojsonschema.JSONLoader {
-	if l, ok := g.loaders[schema]; ok {
+func validate(schema string, cache schemaLoaders, document gojsonschema.JSONLoader) (*gojsonschema.Result, error) {
+	sl := gojsonschema.NewSchemaLoader()
+
+	all := make([]gojsonschema.JSONLoader, 0, len(cache))
+
+	for k, v := range cache {
+		if k != schema {
+			all = append(all, v)
+		}
+	}
+
+	if err := sl.AddSchemas(all...); err != nil {
+		return nil, err
+	}
+
+	s, err := sl.Compile(schemaLoader(schema, cache))
+	if err != nil {
+		return nil, err
+	}
+
+	return s.Validate(document)
+}
+
+func schemaLoader(schema string, loaders schemaLoaders) gojsonschema.JSONLoader {
+	if l, ok := loaders[schema]; ok {
 		return l
 	}
 
