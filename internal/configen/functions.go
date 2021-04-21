@@ -31,7 +31,10 @@ import (
 	"text/template"
 
 	"github.com/Masterminds/sprig/v3"
+	"github.com/itchyny/gojq"
+	"github.com/jmespath/go-jmespath"
 	"github.com/pelletier/go-toml"
+	"github.com/qri-io/jsonpointer"
 	"gopkg.in/yaml.v3"
 )
 
@@ -43,6 +46,14 @@ var functions = map[string]interface{}{
 	"fromToml":      fromToml,
 	"equal":         reflect.DeepEqual,
 	"assert":        assertion,
+	"jq":            jq,
+	"qj":            qj,
+	"jp":            jp,
+	"pj":            pj,
+	"jptr":          jptr,
+	"uritpl":        uritpl,
+	"qsParse":       qsParse,
+	"qsJoin":        qsJoin,
 }
 
 // ErrMissingValue returned by 'required' template function when required value is missing.
@@ -155,4 +166,62 @@ func (f *files) GetBytes(name string) ([]byte, error) {
 	}
 
 	return b, nil
+}
+
+func qj(query string, v map[string]interface{}) (interface{}, error) {
+	return jq(v, query)
+}
+
+func jq(v map[string]interface{}, query string) (interface{}, error) {
+	q, err := gojq.Parse(query)
+	if err != nil {
+		return nil, err
+	}
+
+	var val interface{}
+
+	iter := q.Run(v)
+
+	for {
+		v, ok := iter.Next()
+		if !ok {
+			break
+		}
+
+		if e, ok := v.(error); ok {
+			err = e
+
+			break
+		}
+
+		val = v
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return val, nil
+}
+
+func pj(query string, v map[string]interface{}) (interface{}, error) {
+	return jp(v, query)
+}
+
+func jp(v map[string]interface{}, query string) (interface{}, error) {
+	res, err := jmespath.Search(query, v)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func jptr(v map[string]interface{}, str string) (interface{}, error) {
+	ptr, err := jsonpointer.Parse(str)
+	if err != nil {
+		return nil, err
+	}
+
+	return ptr.Eval(v)
 }

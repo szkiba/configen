@@ -32,6 +32,6 @@ type Options struct {
 	Loose     bool              `long:"loose" description:"Disable schema validation"`
 	Dry       bool              `long:"dry-run" description:"Skip writing output files"`
 	Dump      bool              `long:"dump" description:"Dump intermediate files"`
-	Quiet     bool              `short:"q" long:"quiet" description:"Do not show output file names"`
+	Quiet     bool              `short:"q" long:"quiet" description:"Suppress console output"`
 	Package   string            `short:"p" long:"package" value-name:"file" description:"Package descriptor template (default: package.json)"` //nolint:lll
 }
