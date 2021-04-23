@@ -20,6 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-threshold: 40 # temporary
+threshold: 20 # temporary
 thresholdType: stmt
 root: "github.com/szkiba/configen/"
