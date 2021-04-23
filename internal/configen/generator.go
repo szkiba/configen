@@ -164,6 +164,17 @@ func (g *generator) initFuncMap(t *template.Template, funcs template.FuncMap) {
 		return buff.String(), nil
 	}
 
+	funcs["validate"] = func(schema string, v map[string]interface{}) bool {
+		err := g.validate(schema, v)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+
+			return false
+		}
+
+		return true
+	}
+
 	if g.quiet {
 		noop := func(a ...interface{}) (int, error) {
 			return 0, nil
@@ -255,7 +266,7 @@ func (g *generator) generateFile(basedir string, path string) error {
 		return wrap(err, errfile)
 	}
 
-	parsed, err := g.validate(txt, format)
+	parsed, err := g.validateRaw(txt, format)
 	if err != nil {
 		return wrap(err, errfile)
 	}
@@ -343,7 +354,7 @@ func (g *generator) newContext(env string, o *Options) (Context, error) {
 			return nil, wrap(err, f)
 		}
 
-		if _, err = g.validate(b, format); err != nil {
+		if _, err = g.validateRaw(b, format); err != nil {
 			return nil, wrap(err, f)
 		}
 

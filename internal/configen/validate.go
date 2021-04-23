@@ -23,6 +23,7 @@
 package configen
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"net/url"
@@ -39,7 +40,7 @@ var ErrValidationError = errors.New("validation error")
 
 type schemaLoaders map[string]gojsonschema.JSONLoader
 
-func (g *generator) validate(b []byte, format string) (interface{}, error) {
+func (g *generator) validateRaw(b []byte, format string) (interface{}, error) {
 	fn, ok := parsers[format]
 	if !ok {
 		return nil, nil
@@ -56,22 +57,35 @@ func (g *generator) validate(b []byte, format string) (interface{}, error) {
 		return v, nil
 	}
 
+	err := g.validate(schema, v)
+
+	return v, err
+}
+
+func (g *generator) validate(schema string, v interface{}) error {
 	loader := gojsonschema.NewGoLoader(v)
 
 	result, err := validate(schema, g.loaders, loader)
 	if err != nil {
-		return v, wrap(err, schema)
+		return wrap(err, schema)
 	}
 
 	if !result.Valid() {
-		for _, desc := range result.Errors() {
-			fmt.Fprintf(os.Stderr, "%s\n", desc)
+		var buff bytes.Buffer
+
+		errs := result.Errors()
+		for i, desc := range errs {
+			if i != 0 {
+				buff.WriteRune(';')
+			}
+
+			buff.WriteString(desc.String())
 		}
 
-		return v, ErrValidationError
+		return fmt.Errorf("%w: %s", ErrValidationError, buff.String())
 	}
 
-	return v, err
+	return err
 }
 
 func validate(schema string, cache schemaLoaders, document gojsonschema.JSONLoader) (*gojsonschema.Result, error) {
