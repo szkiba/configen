@@ -46,8 +46,8 @@ type formatFunc func(interface{}) ([]byte, error)
 
 var (
 	parsers = map[string]parseFunc{
-		"yaml":  yaml.Unmarshal,
-		"yml":   yaml.Unmarshal,
+		"yaml":  yamlUnmarshal,
+		"yml":   yamlUnmarshal,
 		"json":  jsonUnmarshal,
 		"jsonc": jsonUnmarshal,
 		"toml":  toml.Unmarshal,
@@ -87,6 +87,20 @@ func yamlMarshal(data interface{}) ([]byte, error) {
 	}
 
 	return buff.Bytes(), nil
+}
+
+func yamlUnmarshal(data []byte, v interface{}) error {
+	if err := yaml.Unmarshal(data, v); err != nil {
+		return err
+	}
+
+	// quick and dirty map[insterface{}]interface{} to map[string]interface{} conversion
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(b, v)
 }
 
 func (c *Context) unmarshal(data []byte, format string) error {
