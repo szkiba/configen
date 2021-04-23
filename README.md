@@ -31,11 +31,13 @@ Options:
       --loose                 Disable schema validation
       --dry-run               Skip writing output files
       --dump                  Dump intermediate files
-  -q, --quiet                 Do not show output file names
+  -q, --quiet                 Suppress console output
   -p, --package=file          Package descriptor template (default: package.json)
   -e, --env=environment       Staging environment name [arg: @environment]
       --dir=directory         Set working directory
   -V, --version               Show version information
+  -w, --watch                 Watch and generate on filesystem changes
+      --port=number           HTTP port for watch mode (default: random) [$PORT]
 
 Help Options:
   -h, --help                  Show this help message
