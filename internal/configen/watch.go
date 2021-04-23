@@ -102,7 +102,7 @@ func (s *server) run() error {
 }
 
 func (s *server) onCreate(path string) {
-	if info, err := os.Stat(path); err == nil && info.IsDir() {
+	if _, err := os.Stat(path); err == nil {
 		if err := s.watcher.Add(path); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 		}
@@ -132,8 +132,6 @@ func (s *server) watch() {
 
 			if event.Op&fsnotify.Create == fsnotify.Create {
 				s.onCreate(event.Name)
-
-				return
 			}
 
 			s.onModify()
@@ -224,11 +222,7 @@ func watchDeep(watcher *fsnotify.Watcher, path string) error {
 			return err
 		}
 
-		if info.IsDir() {
-			return watcher.Add(path)
-		}
-
-		return nil
+		return watcher.Add(path)
 	})
 }
 
