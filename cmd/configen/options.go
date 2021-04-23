@@ -44,6 +44,8 @@ type meta struct {
 	Env     []string `short:"e" long:"env" value-name:"environment" description:"Staging environment name [arg: @environment]"` //nolint:lll
 	Dir     string   `long:"dir" value-name:"directory" description:"Set working directory"`
 	Version bool     `short:"V" long:"version" description:"Show version information"`
+	Watch   bool     `short:"w" long:"watch" description:"Watch and generate on filesystem changes"`
+	Port    int      `long:"port" value-name:"number" env:"PORT" description:"HTTP port for watch mode (default: random)"` //nolint:lll
 }
 
 type options struct {

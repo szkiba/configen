@@ -50,6 +50,14 @@ func run(args []string) int {
 		return 1
 	}
 
+	if opts.Watch {
+		if err := configen.Watch(opts.Port, &opts.Options, opts.Env...); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+
+			return 1
+		}
+	}
+
 	return 0
 }
 

@@ -86,6 +86,12 @@ run:
 	@dist/configen -q --dump --dir $(TESTDATA) +values.json @dev format=toml
 .PHONY: run
 
+#: Watch
+watch:
+	@go build -o dist/configen ./cmd/configen/*.go 
+	@dist/configen --watch -q --dump --dir $(TESTDATA) @test @live format=json
+.PHONY: watch
+
 #: Clean up working directory
 clean:
 	@rm -rf dist $(TESTDATA)/dist
