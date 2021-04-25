@@ -142,7 +142,16 @@ func (g *generator) generateDir(dirs ...string) error {
 	return nil
 }
 
-func (g *generator) initFuncMap(t *template.Template, funcs template.FuncMap) {
+func (g *generator) templateFuncMap(t *template.Template) template.FuncMap {
+	funcs := g.newFuncMap()
+
+	funcs["include"] = func(name string, data interface{}) (string, error) {
+		var buf strings.Builder
+		err := t.ExecuteTemplate(&buf, name, data)
+
+		return buf.String(), err
+	}
+
 	funcs["tpl"] = func(tpl string, ctx Context) (string, error) {
 		tmpl, err := t.New("").Parse(tpl)
 		if err != nil {
@@ -163,6 +172,12 @@ func (g *generator) initFuncMap(t *template.Template, funcs template.FuncMap) {
 
 		return buff.String(), nil
 	}
+
+	return funcs
+}
+
+func (g *generator) newFuncMap() template.FuncMap {
+	funcs := newFuncMap()
 
 	funcs["validate"] = func(schema string, v map[string]interface{}) bool {
 		err := g.validate(schema, v)
@@ -193,6 +208,8 @@ func (g *generator) initFuncMap(t *template.Template, funcs template.FuncMap) {
 			return fmt.Fprintf(os.Stdout, format, a...) // nolint
 		}
 	}
+
+	return funcs
 }
 
 func (g *generator) executeTemplate(basedir string, path string) ([]byte, *deferrer, error) {
@@ -202,6 +219,8 @@ func (g *generator) executeTemplate(basedir string, path string) ([]byte, *defer
 	if err != nil {
 		return nil, nil, wrap(err, src)
 	}
+
+	t.Funcs(g.templateFuncMap(t))
 
 	ctx := g.ctx
 	def := newDeferrer(g.quiet, t, g.ctx)
@@ -266,6 +285,8 @@ func (g *generator) generateFile(basedir string, path string) error {
 		return wrap(err, errfile)
 	}
 
+	out = outname(out, format)
+
 	parsed, err := g.validateRaw(txt, format)
 	if err != nil {
 		return wrap(err, errfile)
@@ -279,9 +300,6 @@ func (g *generator) generateFile(basedir string, path string) error {
 		return nil
 	}
 
-	out = strings.TrimSuffix(out, filepath.Ext(out))
-	out += "." + format
-
 	err = ioutil.WriteFile(out, txt, filePerm)
 	if err != nil {
 		return err
@@ -290,12 +308,18 @@ func (g *generator) generateFile(basedir string, path string) error {
 	return nil
 }
 
+func outname(out, format string) string {
+	if len(format) > 0 {
+		return strings.TrimSuffix(out, filepath.Ext(out)) + "." + format
+	}
+
+	return out
+}
+
 func (g *generator) newRootTemplate(env string, o *Options) (*template.Template, error) {
 	t := template.New(partialPrefix)
-	funcs := newFuncMap(t)
 
-	g.initFuncMap(t, funcs)
-	t = t.Funcs(funcs)
+	t = t.Funcs(g.templateFuncMap(t))
 
 	for _, dir := range o.Templates {
 		dir, err := resolve(env, dir)

@@ -46,7 +46,13 @@ func Test_newFuncMap(t *testing.T) {
 		{name: "fromYaml", in: `{{toYaml .values|fromYaml|toToml}}`, want: strings.TrimSpace(string(valuesTOML))},
 		{name: "fromToml", in: `{{toToml .values|fromToml|toYaml}}`, want: strings.TrimSpace(string(valuesYAML))},
 		{name: "fromYamlArray", in: `{{list "foo" "bar"|toYaml|fromYamlArray|join "+"}}`, want: "foo+bar"},
-		{name: "include", in: `{{define "foo"}}{{.version}}{{end}}{{include "foo" .values}}`, want: "1.0.0"},
+
+		{name: "jp", in: `{{jp "values.name" .}}`, want: "foo"},
+		{name: "jp", in: `{{jp . "values.name"}}`, want: "foo"},
+
+		{name: "jptr", in: `{{jptr . "/values/name"}}`, want: "foo"},
+
+		{name: "expr", in: `{{expr . "values.name"}}`, want: "foo"},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -54,7 +60,7 @@ func Test_newFuncMap(t *testing.T) {
 			t.Parallel()
 
 			tmpl := template.New("test")
-			funcs := newFuncMap(tmpl)
+			funcs := newFuncMap()
 
 			tmpl, err := tmpl.Funcs(funcs).Parse(tt.in)
 

@@ -31,6 +31,7 @@ import (
 	"text/template"
 
 	"github.com/Masterminds/sprig/v3"
+	"github.com/antonmedv/expr"
 	"github.com/itchyny/gojq"
 	"github.com/jmespath/go-jmespath"
 	"github.com/pelletier/go-toml"
@@ -46,14 +47,14 @@ var functions = map[string]interface{}{
 	"fromToml":      fromToml,
 	"equal":         reflect.DeepEqual,
 	"assert":        assertion,
+	"required":      required,
 	"jq":            jq,
-	"qj":            qj,
 	"jp":            jp,
-	"pj":            pj,
 	"jptr":          jptr,
 	"uritpl":        uritpl,
 	"qsParse":       qsParse,
 	"qsJoin":        qsJoin,
+	"expr":          expression,
 }
 
 // ErrMissingValue returned by 'required' template function when required value is missing.
@@ -61,6 +62,9 @@ var ErrMissingValue = errors.New("missing value")
 
 // ErrAssertionFailed returned by 'assert' template function when provided arg evaluated as flase value.
 var ErrAssertionFailed = errors.New("assertion failed")
+
+// ErrInvalidArgument returned when at least on argument from two is not a string.
+var ErrInvalidArgument = errors.New("one of arguments should be string")
 
 func toYaml(v interface{}) string {
 	output, _ := yamlMarshal(v)
@@ -119,30 +123,23 @@ func assertion(msg string, v interface{}) (bool, error) {
 	return false, fmt.Errorf("%w: %s", ErrAssertionFailed, msg)
 }
 
-func newFuncMap(t *template.Template) template.FuncMap {
+func required(msg string, v interface{}) (interface{}, error) {
+	if v == nil {
+		return "", fmt.Errorf("%w: %s", ErrMissingValue, msg)
+	}
+
+	if s, ok := v.(string); ok && s == "" {
+		return "", fmt.Errorf("%w: %s", ErrMissingValue, msg)
+	}
+
+	return v, nil
+}
+
+func newFuncMap() template.FuncMap {
 	funcs := sprig.TxtFuncMap()
 
 	for k, v := range functions {
 		funcs[k] = v
-	}
-
-	funcs["include"] = func(name string, data interface{}) (string, error) {
-		var buf strings.Builder
-		err := t.ExecuteTemplate(&buf, name, data)
-
-		return buf.String(), err
-	}
-
-	funcs["required"] = func(msg string, v interface{}) (interface{}, error) {
-		if v == nil {
-			return "", fmt.Errorf("%w: %s", ErrMissingValue, msg)
-		}
-
-		if s, ok := v.(string); ok && s == "" {
-			return "", fmt.Errorf("%w: %s", ErrMissingValue, msg)
-		}
-
-		return v, nil
 	}
 
 	return funcs
@@ -168,12 +165,31 @@ func (f *files) GetBytes(name string) ([]byte, error) {
 	return b, nil
 }
 
-func qj(query string, v map[string]interface{}) (interface{}, error) {
-	return jq(v, query)
+func getStringAndInterface(a, b interface{}) (s string, v interface{}, err error) {
+	if s1, ok := a.(string); ok {
+		s = s1
+		v = b
+	} else if s2, ok := b.(string); ok {
+		s = s2
+		v = a
+	} else {
+		return "", nil, fmt.Errorf("%w: got %T, %T", ErrInvalidArgument, a, b)
+	}
+
+	if m, ok := v.(Context); ok {
+		v = map[string]interface{}(m)
+	}
+
+	return s, v, nil
 }
 
-func jq(v map[string]interface{}, query string) (interface{}, error) {
-	q, err := gojq.Parse(query)
+func jq(a, b interface{}) (interface{}, error) {
+	str, v, err := getStringAndInterface(a, b)
+	if err != nil {
+		return nil, err
+	}
+
+	q, err := gojq.Parse(str)
 	if err != nil {
 		return nil, err
 	}
@@ -204,12 +220,13 @@ func jq(v map[string]interface{}, query string) (interface{}, error) {
 	return val, nil
 }
 
-func pj(query string, v map[string]interface{}) (interface{}, error) {
-	return jp(v, query)
-}
+func jp(a, b interface{}) (interface{}, error) {
+	str, v, err := getStringAndInterface(a, b)
+	if err != nil {
+		return nil, err
+	}
 
-func jp(v map[string]interface{}, query string) (interface{}, error) {
-	res, err := jmespath.Search(query, v)
+	res, err := jmespath.Search(str, v)
 	if err != nil {
 		return nil, err
 	}
@@ -217,11 +234,25 @@ func jp(v map[string]interface{}, query string) (interface{}, error) {
 	return res, nil
 }
 
-func jptr(v map[string]interface{}, str string) (interface{}, error) {
+func jptr(a, b interface{}) (interface{}, error) {
+	str, v, err := getStringAndInterface(a, b)
+	if err != nil {
+		return nil, err
+	}
+
 	ptr, err := jsonpointer.Parse(str)
 	if err != nil {
 		return nil, err
 	}
 
 	return ptr.Eval(v)
+}
+
+func expression(a, b interface{}) (interface{}, error) {
+	str, v, err := getStringAndInterface(a, b)
+	if err != nil {
+		return nil, err
+	}
+
+	return expr.Eval(str, v)
 }
