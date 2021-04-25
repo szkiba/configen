@@ -9,12 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+<a name="v0.3.0"></a>
+## [v0.3.0] - 2021-04-25
+### Feat
+- add support for raw file copy
+- added "expr" template function (https://github.com/antonmedv/expr)
+
+
 <a name="v0.2.0"></a>
 ## [v0.2.0] - 2021-04-23
 ### Build
 - lower test coverage requirement temporarily
 
 ### Chore
+- prepare v0.2.0
 - temporary downgrade test coverage requirements
 - disable switch lint
 
@@ -50,5 +58,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - initial version
 
 
-[Unreleased]: https://github.com/szkiba/configen/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/szkiba/configen/compare/v0.3.0...HEAD
+[v0.3.0]: https://github.com/szkiba/configen/compare/v0.2.0...v0.3.0
 [v0.2.0]: https://github.com/szkiba/configen/compare/v0.1.0...v0.2.0
