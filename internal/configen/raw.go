@@ -22,62 +22,14 @@
 
 package configen
 
-import (
-	"bytes"
-	"io/ioutil"
-	"os"
-	"path/filepath"
-	"text/template"
-)
+import "github.com/otiai10/copy"
 
-func resolve(env string, str string) (string, error) {
-	t, err := template.New("str").Parse(str)
-	if err != nil {
-		return "", err
-	}
-
-	var buff bytes.Buffer
-
-	err = t.Execute(&buff, Context{"Env": env})
-	if err != nil {
-		return "", err
-	}
-
-	return buff.String(), nil
-}
-
-func resolveAll(env string, strs []string) ([]string, error) {
-	all := make([]string, len(strs))
-
-	for i, s := range strs {
-		r, err := resolve(env, s)
-		if err != nil {
-			return nil, err
-		}
-
-		all[i] = r
-	}
-
-	return all, nil
-}
-
-func mkdir(dir string) error {
-	if err := os.MkdirAll(dir, dirPerm); err != nil {
-		return err
-	}
-
-	index := filepath.Join(dir, "index.html")
-
-	if _, err := os.Stat(index); os.IsNotExist(err) {
-		if err := ioutil.WriteFile(index, []byte("<html></html>"), filePerm); err != nil {
+func (g *generator) copy() error {
+	for _, dir := range g.raws {
+		if err := copy.Copy(dir, g.output); err != nil {
 			return err
 		}
 	}
 
 	return nil
 }
-
-const (
-	filePerm = 0600
-	dirPerm  = 0755
-)

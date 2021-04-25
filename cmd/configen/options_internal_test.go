@@ -50,10 +50,9 @@ func Test_newOptions(t *testing.T) {
 				Options: configen.Options{ // nolint
 					Templates: []string{"templates"},
 					Output:    "dist",
-					Values:    []string{"values.yaml"},
-					Schemas:   []string{"schemas"},
-					Package:   "package.json",
-					Define:    make(map[string]string),
+					Values:    []string{"values.yaml"}, Schemas: []string{"schemas"},
+					Raws: []string{"static"}, Package: "package.json",
+					Define: make(map[string]string),
 				},
 				meta: meta{Env: []string{""}}, // nolint
 			},
@@ -64,10 +63,9 @@ func Test_newOptions(t *testing.T) {
 				Options: configen.Options{ // nolint
 					Templates: []string{"foo"},
 					Output:    "dist/{{.Env}}",
-					Values:    []string{"values.json"},
-					Schemas:   []string{"schemas"},
-					Package:   "package.json",
-					Define:    make(map[string]string),
+					Values:    []string{"values.json"}, Schemas: []string{"schemas"},
+					Raws: []string{"static"}, Package: "package.json",
+					Define: make(map[string]string),
 				},
 				meta: meta{Env: []string{"test", "dev"}}, // nolint
 			},

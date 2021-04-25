@@ -13,6 +13,7 @@ require (
 	github.com/jmespath/go-jmespath v0.4.0
 	github.com/jpillora/longestcommon v0.0.0-20161227235612-adb9d91ee629
 	github.com/kr/text v0.2.0 // indirect
+	github.com/otiai10/copy v1.5.1
 	github.com/pelletier/go-toml v1.9.0
 	github.com/qri-io/jsonpointer v0.1.1
 	github.com/stretchr/testify v1.5.1

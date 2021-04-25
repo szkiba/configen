@@ -25,6 +25,7 @@ package configen
 // Options holds command line flags.
 type Options struct {
 	Templates []string          `short:"t" long:"template" value-name:"directory" description:"Input directory [arg: directory] (default: templates)"` //nolint:lll
+	Raws      []string          `short:"r" long:"raw" value-name:"directory" description:"Raw input directory to copy (default: static)"`              //nolint:lll
 	Output    string            `short:"o" long:"output" value-name:"directory" description:"Output directory (default: dist)"`                        //nolint:lll
 	Schemas   []string          `short:"s" long:"schema" value-name:"directory" description:"Schema directory (default: schemas)"`                     //nolint:lll
 	Values    []string          `short:"f" long:"values" value-name:"file" description:"Data values file [arg: +file] (default: values.yaml)"`         //nolint:lll

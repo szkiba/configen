@@ -24,6 +24,7 @@ Frequently used options has alternative positional argument syntax.
 
 Options:
   -t, --template=directory    Input directory [arg: directory] (default: templates)
+  -r, --raw=directory         Raw input directory to copy (default: static)
   -o, --output=directory      Output directory (default: dist)
   -s, --schema=directory      Schema directory (default: schemas)
   -f, --values=file           Data values file [arg: +file] (default: values.yaml)

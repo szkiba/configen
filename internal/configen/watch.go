@@ -161,20 +161,20 @@ func (s *server) init() error {
 		outs = append(outs, out)
 
 		if len(s.opts.Package) != 0 {
-			if err := resolveAll(env, []string{s.opts.Package}, set); err != nil {
+			if err := resolveToMap(env, []string{s.opts.Package}, set); err != nil {
 				return err
 			}
 		}
 
-		if err := resolveAll(env, s.opts.Templates, set); err != nil {
+		if err := resolveToMap(env, s.opts.Templates, set); err != nil {
 			return err
 		}
 
-		if err := resolveAll(env, s.opts.Schemas, set); err != nil {
+		if err := resolveToMap(env, s.opts.Schemas, set); err != nil {
 			return err
 		}
 
-		if err := resolveAll(env, s.opts.Values, set); err != nil {
+		if err := resolveToMap(env, s.opts.Values, set); err != nil {
 			return err
 		}
 	}
@@ -190,7 +190,7 @@ func (s *server) init() error {
 	return nil
 }
 
-func resolveAll(env string, strs []string, set map[string]bool) error {
+func resolveToMap(env string, strs []string, set map[string]bool) error {
 	for _, str := range strs {
 		s, err := resolve(env, str)
 		if err != nil {

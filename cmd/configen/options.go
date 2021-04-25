@@ -104,6 +104,14 @@ func (o *options) defaultTemplate() []string {
 	return []string{"templates"}
 }
 
+func (o *options) defaultRaws() []string {
+	if info, err := os.Stat("static"); err == nil && info.IsDir() {
+		return []string{"static"}
+	}
+
+	return []string{}
+}
+
 func (o *options) defaultSchemas() []string {
 	if info, err := os.Stat("schemas"); err == nil && info.IsDir() {
 		return []string{"schemas"}
@@ -139,6 +147,10 @@ func (o *options) defaultValues() []string {
 func (o *options) applyDefaults() {
 	if len(o.Templates) == 0 {
 		o.Templates = o.defaultTemplate()
+	}
+
+	if len(o.Raws) == 0 {
+		o.Raws = o.defaultRaws()
 	}
 
 	if len(o.Schemas) == 0 {

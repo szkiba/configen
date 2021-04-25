@@ -48,7 +48,11 @@ func Generate(opts *Options, envs ...string) error {
 			return err
 		}
 
-		if err := g.generateDir(opts.Templates...); err != nil {
+		if err := g.generate(); err != nil {
+			return err
+		}
+
+		if err := g.copy(); err != nil {
 			return err
 		}
 
@@ -76,14 +80,16 @@ func preparePackage(dir string, file string) error {
 }
 
 type generator struct {
-	output  string
-	loaders schemaLoaders
-	dump    bool
-	loose   bool
-	dry     bool
-	quiet   bool
-	ctx     Context
-	root    *template.Template
+	templates []string
+	raws      []string
+	output    string
+	loaders   schemaLoaders
+	dump      bool
+	loose     bool
+	dry       bool
+	quiet     bool
+	ctx       Context
+	root      *template.Template
 }
 
 func newGenerator(env string, o *Options) (g *generator, err error) {
@@ -110,11 +116,19 @@ func newGenerator(env string, o *Options) (g *generator, err error) {
 		return nil, err
 	}
 
+	if g.templates, err = resolveAll(env, o.Templates); err != nil {
+		return nil, err
+	}
+
+	if g.raws, err = resolveAll(env, o.Raws); err != nil {
+		return nil, err
+	}
+
 	return g, nil
 }
 
-func (g *generator) generateDir(dirs ...string) error {
-	for _, dir := range dirs {
+func (g *generator) generate() error {
+	for _, dir := range g.templates {
 		dir := dir
 		err := filepath.Walk(dir,
 			func(path string, info os.FileInfo, err error) error {
