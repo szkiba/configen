@@ -103,7 +103,7 @@ func (m *markdownHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	output := blackfriday.Run(md)
+	output := blackfriday.Run(md, blackfriday.WithExtensions(blackfriday.CommonExtensions|blackfriday.AutoHeadingIDs))
 
 	rw.Header().Set("Content-Type", "text/html")
 
