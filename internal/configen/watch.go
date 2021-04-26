@@ -166,15 +166,14 @@ func (s *server) init() error {
 			}
 		}
 
-		if err := resolveToMap(env, s.opts.Templates, set); err != nil {
-			return err
-		}
+		paths := make([]string, 0, len(s.opts.Templates)+len(s.opts.Raws)+len(s.opts.Schemas)+len(s.opts.Values))
 
-		if err := resolveToMap(env, s.opts.Schemas, set); err != nil {
-			return err
-		}
+		paths = append(append(append(append(paths, s.opts.Templates...),
+			s.opts.Raws...),
+			s.opts.Schemas...),
+			s.opts.Values...)
 
-		if err := resolveToMap(env, s.opts.Values, set); err != nil {
+		if err := resolveToMap(env, paths, set); err != nil {
 			return err
 		}
 	}
