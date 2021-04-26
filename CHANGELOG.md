@@ -9,8 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+<a name="v0.3.1"></a>
+## [v0.3.1] - 2021-04-26
+### Feat
+- experimental (hidden flag): render and open README.md
+
+### Fix
+- watch raw input directory changes too
+
+
 <a name="v0.3.0"></a>
 ## [v0.3.0] - 2021-04-25
+### Chore
+- prepare v0.3.0
+
 ### Feat
 - add support for raw file copy
 - added "expr" template function (https://github.com/antonmedv/expr)
@@ -58,6 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - initial version
 
 
-[Unreleased]: https://github.com/szkiba/configen/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/szkiba/configen/compare/v0.3.1...HEAD
+[v0.3.1]: https://github.com/szkiba/configen/compare/v0.3.0...v0.3.1
 [v0.3.0]: https://github.com/szkiba/configen/compare/v0.2.0...v0.3.0
 [v0.2.0]: https://github.com/szkiba/configen/compare/v0.1.0...v0.2.0
