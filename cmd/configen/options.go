@@ -46,6 +46,7 @@ type meta struct {
 	Version bool     `short:"V" long:"version" description:"Show version information"`
 	Watch   bool     `short:"w" long:"watch" description:"Watch and generate on filesystem changes"`
 	Port    int      `long:"port" value-name:"number" env:"PORT" description:"HTTP port for watch mode (default: random)"` //nolint:lll
+	Readme  bool     `long:"open-readme" hidden:"true"`
 }
 
 type options struct {
