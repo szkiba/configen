@@ -9,8 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+<a name="v0.3.3"></a>
+## [v0.3.3] - 2021-04-27
+### Refactor
+- removed experimental feature: render and open README.md
+
+
 <a name="v0.3.2"></a>
 ## [v0.3.2] - 2021-04-26
+### Chore
+- prepare v0.3.2
+
 ### Fix
 - experimental markdown processing flags
 
@@ -79,7 +88,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - initial version
 
 
-[Unreleased]: https://github.com/szkiba/configen/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/szkiba/configen/compare/v0.3.3...HEAD
+[v0.3.3]: https://github.com/szkiba/configen/compare/v0.3.2...v0.3.3
 [v0.3.2]: https://github.com/szkiba/configen/compare/v0.3.1...v0.3.2
 [v0.3.1]: https://github.com/szkiba/configen/compare/v0.3.0...v0.3.1
 [v0.3.0]: https://github.com/szkiba/configen/compare/v0.2.0...v0.3.0
