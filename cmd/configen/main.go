@@ -44,16 +44,6 @@ func run(args []string) int {
 		return 0
 	}
 
-	if opts.Readme {
-		if err := openReadme(opts); err != nil {
-			fmt.Fprintln(os.Stderr, err)
-
-			return 1
-		}
-
-		return 0
-	}
-
 	if err := configen.Generate(&opts.Options, opts.Env...); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 
