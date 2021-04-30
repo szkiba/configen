@@ -204,6 +204,20 @@ func (g *generator) newFuncMap() template.FuncMap {
 		return true
 	}
 
+	funcs["file"] = func(path string, content string) error {
+		clean := filepath.Clean(path)
+
+		dir := filepath.Join(g.output, filepath.Dir(clean))
+
+		if err := os.MkdirAll(dir, dirPerm); err != nil {
+			return err
+		}
+
+		file := filepath.Join(dir, filepath.Base(clean))
+
+		return ioutil.WriteFile(file, []byte(content), filePerm)
+	}
+
 	if g.quiet {
 		noop := func(a ...interface{}) (int, error) {
 			return 0, nil
