@@ -63,6 +63,8 @@ dockers:
     dockerfile: Dockerfile.goreleaser
     goos: linux
     goarch: amd64
+    extra_files:
+      - docker-entrypoint.sh
     image_templates:
       - "szkiba/{{ .ProjectName }}:{{ .Tag }}"
       - "szkiba/{{ .ProjectName }}:v{{ .Major }}"
