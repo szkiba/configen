@@ -9,8 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+<a name="v0.3.4"></a>
+## [v0.3.4] - 2021-04-30
+### Feat
+- make Docker container more developer friendly
+- --watch now sets PORT
+- file template function for writing output files
+
+
 <a name="v0.3.3"></a>
 ## [v0.3.3] - 2021-04-27
+### Chore
+- prepare v0.3.3
+
 ### Refactor
 - removed experimental feature: render and open README.md
 
@@ -88,7 +99,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - initial version
 
 
-[Unreleased]: https://github.com/szkiba/configen/compare/v0.3.3...HEAD
+[Unreleased]: https://github.com/szkiba/configen/compare/v0.3.4...HEAD
+[v0.3.4]: https://github.com/szkiba/configen/compare/v0.3.3...v0.3.4
 [v0.3.3]: https://github.com/szkiba/configen/compare/v0.3.2...v0.3.3
 [v0.3.2]: https://github.com/szkiba/configen/compare/v0.3.1...v0.3.2
 [v0.3.1]: https://github.com/szkiba/configen/compare/v0.3.0...v0.3.1
