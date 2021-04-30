@@ -9,8 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+<a name="v0.3.5"></a>
+## [v0.3.5] - 2021-04-30
+### Fix
+- docker entry script shell options
+
+
 <a name="v0.3.4"></a>
 ## [v0.3.4] - 2021-04-30
+### Chore
+- prepare v0.3.4
+
 ### Feat
 - make Docker container more developer friendly
 - --watch now sets PORT
@@ -99,7 +108,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - initial version
 
 
-[Unreleased]: https://github.com/szkiba/configen/compare/v0.3.4...HEAD
+[Unreleased]: https://github.com/szkiba/configen/compare/v0.3.5...HEAD
+[v0.3.5]: https://github.com/szkiba/configen/compare/v0.3.4...v0.3.5
 [v0.3.4]: https://github.com/szkiba/configen/compare/v0.3.3...v0.3.4
 [v0.3.3]: https://github.com/szkiba/configen/compare/v0.3.2...v0.3.3
 [v0.3.2]: https://github.com/szkiba/configen/compare/v0.3.1...v0.3.2
