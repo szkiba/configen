@@ -90,7 +90,12 @@ func (s *server) run() error {
 		return err
 	}
 
-	fmt.Fprintf(os.Stderr, "Listening on http://%s\n", addr(listener.Addr().(*net.TCPAddr).Port))
+	port := listener.Addr().(*net.TCPAddr).Port
+
+	os.Setenv("PORT", strconv.Itoa(port))
+
+	fmt.Fprintf(os.Stderr, "Listening on http://%s\n", addr(port))
+	s.onModify()
 
 	if err := http.Serve(listener, nil); err != nil {
 		fmt.Fprintln(os.Stderr, err)
